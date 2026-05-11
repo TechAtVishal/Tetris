@@ -1,0 +1,3 @@
+C:\Users\VISHAL\OneDrive\Desktop\Something\Tetris\x64\Debug\raylib.dll
+C:\Users\VISHAL\OneDrive\Desktop\Something\Tetris\x64\Debug\glfw3.dll
+C:\Users\VISHAL\OneDrive\Desktop\Something\Tetris\Tetris\x64\Debug\Tetris.vcxproj.Up2Date
