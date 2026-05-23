@@ -228,6 +228,58 @@ bool CheckGameOver() {
 	return false;
 }
 
+void RotatePiece() {
+	int i, j, min_i=100, max_i=0, min_j=100, max_j=0;
+	for (i = 10; i < 40; i++) {
+		for (j = 20; j < 40; j++) {
+			if (main_grid[i][j] == 1) {
+				min_i = min(min_i, i);
+				max_i = max(max_i, i);
+				min_j = min(min_j, j);
+				max_j = max(max_j, j);
+			}
+		}
+	}
+	int cur_h = max_i - min_i + 1, cur_w = max_j - min_j + 1;
+	if (cur_h > 0 && cur_w > 0) {
+		vector<vector<int>> rotated_obj(cur_w, vector<int>(cur_h, 0));
+		for (i = min_i; i <= max_i; i++) {
+			for (j = min_j; j <= max_j; j++) {
+				if (main_grid[i][j] == 1)
+					rotated_obj[j - min_j][i - min_i] = main_grid[i][j];
+			}
+		}
+		for (i = 0; i < cur_w; i++) {
+			for (j = 0; j < cur_h / 2; j++) {
+				int temp = rotated_obj[i][j];
+				rotated_obj[i][j] = rotated_obj[i][cur_h - j - 1];
+				rotated_obj[i][cur_h - j - 1] = temp;
+			}
+		}
+		bool is_rotation_possible = true;
+		for (i = min_i; i <= min_i + cur_w - 1; i++) {
+			for (j = min_j; j <= min_j + cur_h - 1; j++) {
+				if (main_grid[j][i] != 1 && main_grid[j][i] != 0)
+					is_rotation_possible = false;
+			}
+		}
+		if (is_rotation_possible) {
+			for (i = min_i; i <= max_i; i++) {
+				for (j = min_j; j <= max_j; j++) {
+					if (main_grid[i][j] == 1)
+						main_grid[i][j] = 0;
+				}
+			}
+			for (i = min_i; i <= min_i + cur_w - 1; i++) {
+				for (j = min_j; j <= min_j + cur_h - 1; j++) {
+					if (rotated_obj[i - min_i][j - min_j] == 1)
+						main_grid[i][j] = rotated_obj[i - min_i][j - min_j];
+				}
+			}
+		}
+	}
+}
+
 int main() {
 	InitWindow(600, 500, "Tetris");
 	SetTargetFPS(60);
@@ -261,6 +313,9 @@ int main() {
 					isGameOver = CheckGameOver();
 				}
 				PiecePlayerMovement();
+				if (IsKeyDown(KEY_ENTER)) {
+					RotatePiece();
+				}
 			}
 			DrawPieces();
 		}
