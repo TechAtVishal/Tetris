@@ -13,6 +13,7 @@ void PreGameRun() {
 	int i, j;
 	for (i = 1; i <= 50; i++) {
 		for (j = 1; j <= 60; j++) {
+			main_grid[i][j] = 0;
 			if (j < 20 || j >= 40 || i >= 40)
 				main_grid[i][j] = 10;
 			if (i == 40)
@@ -21,8 +22,9 @@ void PreGameRun() {
 	}
 }
 
-void DrawMainGUI(Texture2D& mg) {
+void DrawMainGUI(Texture2D& mg, Font& mf) {
 	DrawTexture(mg, 0, 0, RAYWHITE);
+	DrawTextPro(mf, TextFormat("%04i", score), Vector2{ 465, 227 }, Vector2{ 0, 0 }, 0, 20, 8, WHITE);
 }
 
 void PieceGen(int piece_choice) {
@@ -141,7 +143,7 @@ void PieceFreeze() {
 }
 
 void NextPieceDisp(int piece_choice) {
-	int x = 9, y = 25, i, j;
+	int x = 10, y = 25, i, j;
 	for (i = y; i <= y + 5; i++) {
 		for (j = x - 1; j <= x + 5; j++)
 			main_grid[i][j] = 0;
@@ -264,6 +266,11 @@ void RotatePiece() {
 	}
 }
 
+void GameReset() {
+	score = 0;
+	PreGameRun();
+}
+
 int main() {
 	InitWindow(600, 500, "Tetris");
 	SetTargetFPS(60);
@@ -277,14 +284,19 @@ int main() {
 	Texture2D block_y = LoadTexture("Images/Block_Yellow.png");
 	Texture2D block_r = LoadTexture("Images/Block_Red.png");
 	Texture2D block_p = LoadTexture("Images/Block_Purple.png");
+	Font main_font = LoadFont("Fonts/pixel-game.otf");
 	while (!IsKeyDown(KEY_E)) {
 		BeginDrawing();
 		if (isGameOver) {
 			DrawRectangle(150, 150, 300, 200, ORANGE);
-			DrawText(TextFormat("GAME OVER"), 200, 200, 30, BLACK);
+			DrawTextPro(main_font, TextFormat("GAME OVER"), Vector2{ 210, 200 }, Vector2{ 0, 0 }, 0, 50, 0, BLACK);
+			if (IsKeyPressed(KEY_R)) {
+				isGameOver = false;
+				GameReset();
+			}
 		}
 		else {
-			DrawMainGUI(main_GUI);
+			DrawMainGUI(main_GUI, main_font);
 			cur = clock();
 			if (PieceNeeded) {
 				PieceGen(piece_choice);
