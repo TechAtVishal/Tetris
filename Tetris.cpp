@@ -21,16 +21,8 @@ void PreGameRun() {
 	}
 }
 
-void DrawMainGUI() {
-	DrawRectangle(0, 0, 600, 500, BLACK);
-	DrawRectangle(0, 0, 200, 500, BLUE);
-	DrawRectangle(400, 0, 200, 500, BLUE);
-	DrawRectangle(0, 0, 600, 100, BLUE);
-	DrawRectangle(0, 400, 600, 100, BLUE);
-	DrawText(TextFormat("NEXT"), 65, 200, 20, BLACK);
-	DrawRectangle(65, 225, 65, 65, PURPLE);
-	DrawText(TextFormat("SCORE:  %03i", score), 450, 200, 20, BLACK);
-	DrawText(TextFormat("TETRIS"), 220, 20, 40, BLACK);
+void DrawMainGUI(Texture2D& mg) {
+	DrawTexture(mg, 0, 0, RAYWHITE);
 }
 
 void PieceGen(int piece_choice) {
@@ -52,13 +44,14 @@ void PieceGen(int piece_choice) {
 }
 
 bool is_Obstacle(int y, int x) {
-	if (main_grid[y][x] == 2 || main_grid[y][x] == 10)
+	if (main_grid[y][x] == 2 || main_grid[y][x] == 10 || main_grid[y][x] == 5)
 		return true;
 	return false;
 }
 
 void PiecePlayerMovement() {
 	int i, j;
+	static int A_ctr = 0, D_ctr = 0;
 	bool flag = true;
 	if (IsKeyDown(KEY_A)) {
 		for (j = 20; j < 40; j++) {
@@ -74,7 +67,8 @@ void PiecePlayerMovement() {
 			if (!flag)
 				break;
 		}
-		if (flag) {
+		A_ctr = (A_ctr + 1) % 5;
+		if (flag && A_ctr==0) {
 			for (j = 20; j < 40; j++) {
 				for (i = 0; i < 40; i++) {
 					if (main_grid[i][j] == 1) {
@@ -100,7 +94,8 @@ void PiecePlayerMovement() {
 			if (!flag)
 				break;
 		}
-		if (flag) {
+		D_ctr = (D_ctr + 1) % 5;
+		if (flag && D_ctr==0) {
 			for (j = 39; j >= 20; j--) {
 				for (i = 0; i <= 40; i++) {
 					if (main_grid[i][j] == 1) {
@@ -167,29 +162,18 @@ void NextPieceDisp(int piece_choice) {
 		main_grid[y][x] = main_grid[y + 1][x - 1] = main_grid[y + 1][x] = main_grid[y + 1][x + 1] = 3;	//reverse t;
 }
 
-void DrawPieces() {
+void DrawPieces(Texture2D& by, Texture2D& br, Texture2D& bp) {
 	int i, j;
 	for (i = 0; i <= 50; i++) {
 		for (j = 0; j <= 60; j++) {
 			if (i >= 10 && j >= 20) {
 				if (main_grid[i][j] == 1)
-					DrawRectangle(j * 10, i * 10, 10, 10, YELLOW);
+					DrawTexture(by, j * 10, i * 10, RAYWHITE);
 				if (main_grid[i][j] == 2)
-					DrawRectangle(j * 10, i * 10, 10, 10, RED);
-				if (main_grid[i][j] == 1 || main_grid[i][j] == 2) {
-					DrawRectangle(j * 10, i * 10, 1, 10, BLACK);
-					DrawRectangle(j * 10, (i * 10) + 9, 10, 1, BLACK);
-					DrawRectangle(j * 10, i * 10, 1, 10, BLACK);
-					DrawRectangle((j * 10) + 9, i * 10, 1, 10, BLACK);
-				}
+					DrawTexture(br, j * 10, i * 10, RAYWHITE);
 			}
-			if (main_grid[i][j] == 3) {
-				DrawRectangle(j * 10, i * 10, 10, 10, GREEN);
-				DrawRectangle(j * 10, i * 10, 1, 10, BLACK);
-				DrawRectangle(j * 10, (i * 10) + 9, 10, 1, BLACK);
-				DrawRectangle(j * 10, i * 10, 1, 10, BLACK);
-				DrawRectangle((j * 10) + 9, i * 10, 1, 10, BLACK);
-			}
+			if (main_grid[i][j] == 3)
+				DrawTexture(bp, j * 10, i * 10, RAYWHITE);
 		}
 	}
 }
@@ -230,8 +214,8 @@ bool CheckGameOver() {
 
 void RotatePiece() {
 	int i, j, min_i=100, max_i=0, min_j=100, max_j=0;
-	for (i = 10; i < 40; i++) {
-		for (j = 20; j < 40; j++) {
+	for (i = 0; i < 40; i++) {
+		for (j = 10; j < 40; j++) {
 			if (main_grid[i][j] == 1) {
 				min_i = min(min_i, i);
 				max_i = max(max_i, i);
@@ -259,7 +243,7 @@ void RotatePiece() {
 		bool is_rotation_possible = true;
 		for (i = min_i; i <= min_i + cur_w - 1; i++) {
 			for (j = min_j; j <= min_j + cur_h - 1; j++) {
-				if (main_grid[j][i] != 1 && main_grid[j][i] != 0)
+				if (is_Obstacle(i, j))
 					is_rotation_possible = false;
 			}
 		}
@@ -289,6 +273,10 @@ int main() {
 	prv = clock(); 
 	bool PieceNeeded = true, isGameOver = false;
 	int piece_choice = rand() % 7;
+	Texture2D main_GUI = LoadTexture("Images/Tetris_Main_GUI.png");
+	Texture2D block_y = LoadTexture("Images/Block_Yellow.png");
+	Texture2D block_r = LoadTexture("Images/Block_Red.png");
+	Texture2D block_p = LoadTexture("Images/Block_Purple.png");
 	while (!IsKeyDown(KEY_E)) {
 		BeginDrawing();
 		if (isGameOver) {
@@ -296,7 +284,7 @@ int main() {
 			DrawText(TextFormat("GAME OVER"), 200, 200, 30, BLACK);
 		}
 		else {
-			DrawMainGUI();
+			DrawMainGUI(main_GUI);
 			cur = clock();
 			if (PieceNeeded) {
 				PieceGen(piece_choice);
@@ -312,12 +300,12 @@ int main() {
 					ScoringSystem();
 					isGameOver = CheckGameOver();
 				}
-				PiecePlayerMovement();
-				if (IsKeyDown(KEY_ENTER)) {
-					RotatePiece();
-				}
+				
 			}
-			DrawPieces();
+			PiecePlayerMovement();
+			if (IsKeyPressed(KEY_ENTER)) 
+				RotatePiece();
+			DrawPieces(block_y, block_r, block_p);
 		}
 		EndDrawing();
 	}
