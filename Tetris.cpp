@@ -273,6 +273,7 @@ void GameReset() {
 
 int main() {
 	InitWindow(600, 500, "Tetris");
+	InitAudioDevice();
 	SetTargetFPS(60);
 	srand(time(0));
 	PreGameRun();
@@ -285,7 +286,13 @@ int main() {
 	Texture2D block_r = LoadTexture("Images/Block_Red.png");
 	Texture2D block_p = LoadTexture("Images/Block_Purple.png");
 	Font main_font = LoadFont("Fonts/pixel-game.otf");
+	//SetAudioStreamBufferSizeDefault(2048);
+	Music main_bgm = LoadMusicStream("Music/BGM.wav");
+	main_bgm.looping = true;
+	PlayMusicStream(main_bgm);
+	SetMusicVolume(main_bgm, 1.0f);
 	while (!IsKeyDown(KEY_E)) {
+		UpdateMusicStream(main_bgm);
 		BeginDrawing();
 		if (isGameOver) {
 			DrawRectangle(150, 150, 300, 200, ORANGE);
