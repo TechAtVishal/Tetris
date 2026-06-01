@@ -180,8 +180,35 @@ void DrawPieces(Texture2D& by, Texture2D& br, Texture2D& bp) {
 	}
 }
 
-void ScoringSystem() {
-	int complete_rows = 0, i, j, k;
+void AnimateScoringBlocks(vector<int> &completeRows, int currentFrame, Texture2D &animatedScoringBlocks) {
+	Rectangle currentAnimatedFrame = { 10 * currentFrame, 0, 10, 10 };
+	int i, j;
+	for (i = 0; i < completeRows.size(); i++) {
+		for (j = 20; j < 40; j++) {
+			Vector2 pos = { j * 10, completeRows[i] * 10 };
+			DrawTextureRec(animatedScoringBlocks, currentAnimatedFrame, pos, RAYWHITE);
+		}
+	}
+}
+
+void ScoringSystemBringDownFloatingBlocks(vector<int> &completeRows) {
+	int i, j, k;
+	for (i = 0; i < completeRows.size(); i++) {
+		for (j = 20; j < 40; j++) {
+			main_grid[completeRows[i]][j] = 0;
+			for (k = completeRows[i] - 1; k >= 10; k--) {
+				if (main_grid[k][j] == 2) {
+					main_grid[k + 1][j] = 2;
+					main_grid[k][j] = 0;
+				}
+			}
+		}
+	}
+}
+
+vector<int> ScoringSystemCompleteRowsCounter() {
+	vector<int> completeRows;
+	int complete_rows = 0, i, j;
 	for (i = 10; i < 40; i++) {
 		int row_ctr = 0;
 		for (j = 20; j < 40; j++) {
@@ -189,22 +216,14 @@ void ScoringSystem() {
 				row_ctr++;
 		}
 		if (row_ctr == 20) {
+			completeRows.push_back(i);
 			complete_rows++;
 			score += (20 + (complete_rows * 10));
-			for (j = 20; j < 40; j++) {
-				main_grid[i][j] = 0;
-				for (k = i - 1; k >= 10; k--) {
-					if (main_grid[k][j] == 2) {
-						main_grid[k + 1][j] = 2;
-						main_grid[k][j] = 0;
-					}
-				}
-			}
-
 		}
 	}
+	return completeRows;
 }
-
+	
 bool CheckGameOver() {
 	int j;
 	for (j = 20; j < 40; j++) {
@@ -281,18 +300,22 @@ int main() {
 	prv = clock(); 
 	bool PieceNeeded = true, isGameOver = false;
 	int piece_choice = rand() % 7;
+	int scoringBlocksFrameCounter = 0;
 	Texture2D main_GUI = LoadTexture("Images/Tetris_Main_GUI.png");
 	Texture2D block_y = LoadTexture("Images/Block_Yellow.png");
 	Texture2D block_r = LoadTexture("Images/Block_Red.png");
 	Texture2D block_p = LoadTexture("Images/Block_Purple.png");
+	Texture2D animatedScoringBlocks = LoadTexture("Images/Block_Red_Scoring_Animation.png");
 	Font main_font = LoadFont("Fonts/pixel-game.otf");
-	//SetAudioStreamBufferSizeDefault(2048);
+	SetAudioStreamBufferSizeDefault(2048);
 	Music main_bgm = LoadMusicStream("Music/BGM.wav");
 	main_bgm.looping = true;
 	PlayMusicStream(main_bgm);
 	SetMusicVolume(main_bgm, 1.0f);
+	vector<int>completeRows;
 	while (!IsKeyDown(KEY_E)) {
 		UpdateMusicStream(main_bgm);
+		cur = clock();
 		BeginDrawing();
 		if (isGameOver) {
 			DrawRectangle(150, 150, 300, 200, ORANGE);
@@ -302,9 +325,22 @@ int main() {
 				GameReset();
 			}
 		}
+		else if (completeRows.size()) {
+			if ((double)cur - (double)prv >= 2000 * GetFrameTime()) {
+				prv = cur;
+				if (scoringBlocksFrameCounter < 6) {
+					AnimateScoringBlocks(completeRows, scoringBlocksFrameCounter, animatedScoringBlocks);
+					scoringBlocksFrameCounter++;
+				}
+				else {
+					ScoringSystemBringDownFloatingBlocks(completeRows);
+					completeRows.clear();
+					scoringBlocksFrameCounter = 0;
+				}
+			}
+		}
 		else {
 			DrawMainGUI(main_GUI, main_font);
-			cur = clock();
 			if (PieceNeeded) {
 				PieceGen(piece_choice);
 				PieceNeeded = false;
@@ -316,10 +352,10 @@ int main() {
 				PieceNeeded = PieceGravityMovement();
 				if (PieceNeeded) {
 					PieceFreeze();
-					ScoringSystem();
-					isGameOver = CheckGameOver();
+					completeRows = ScoringSystemCompleteRowsCounter();
+					if (!completeRows.size())
+						isGameOver = CheckGameOver();
 				}
-				
 			}
 			PiecePlayerMovement();
 			if (IsKeyPressed(KEY_ENTER)) 

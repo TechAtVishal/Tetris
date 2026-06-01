@@ -1,5 +1,11 @@
 ﻿  Tetris.cpp
-C:\Users\VISHAL\OneDrive\Desktop\Something\Tetris\Tetris.cpp(278,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\VISHAL\OneDrive\Desktop\Something\Tetris\Tetris.cpp(184,40): warning C4838: conversion from 'int' to 'float' requires a narrowing conversion
+C:\Users\VISHAL\OneDrive\Desktop\Something\Tetris\Tetris.cpp(184,40): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\VISHAL\OneDrive\Desktop\Something\Tetris\Tetris.cpp(188,22): warning C4838: conversion from 'int' to 'float' requires a narrowing conversion
+C:\Users\VISHAL\OneDrive\Desktop\Something\Tetris\Tetris.cpp(188,22): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\VISHAL\OneDrive\Desktop\Something\Tetris\Tetris.cpp(188,44): warning C4838: conversion from 'int' to 'float' requires a narrowing conversion
+C:\Users\VISHAL\OneDrive\Desktop\Something\Tetris\Tetris.cpp(188,44): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\Users\VISHAL\OneDrive\Desktop\Something\Tetris\Tetris.cpp(297,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   Tetris.vcxproj -> C:\Users\VISHAL\OneDrive\Desktop\Something\Tetris\x64\Debug\Tetris.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.
