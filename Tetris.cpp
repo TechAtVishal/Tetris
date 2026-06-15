@@ -55,7 +55,7 @@ void PiecePlayerMovement() {
 	int i, j;
 	static int A_ctr = 0, D_ctr = 0;
 	bool flag = true;
-	if (IsKeyDown(KEY_A)) {
+	if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
 		for (j = 20; j < 40; j++) {
 			for (i = 0; i < 40; i++) {
 				if (main_grid[i][j] == 1) {
@@ -82,7 +82,7 @@ void PiecePlayerMovement() {
 		}
 	}
 	flag = true;
-	if (IsKeyDown(KEY_D)) {
+	if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
 		for (j = 39; j >= 20; j--) {
 			for (i = 0; i <= 40; i++) {
 				if (main_grid[i][j] == 1) {
